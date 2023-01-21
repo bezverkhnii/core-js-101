@@ -1,3 +1,4 @@
+/* eslint-disable linebreak-style */
 /* ************************************************************************************************
  *                                                                                                *
  * Please read the following tutorial before implementing tasks:                                   *
@@ -28,8 +29,16 @@
  *      .catch((error) => console.log(error.message)) // 'Error: Wrong parameter is passed!
  *                                                    //  Ask her again.';
  */
-function willYouMarryMe(/* isPositiveAnswer */) {
-  throw new Error('Not implemented');
+function willYouMarryMe(isPositiveAnswer) {
+  return new Promise((resolve, reject) => {
+    if (isPositiveAnswer) {
+      resolve('Hooray!!! She said "Yes"!');
+    } else if (isPositiveAnswer === false) {
+      resolve('Oh no, she said "No".');
+    } else {
+      reject(new Error('Wrong parameter is passed! Ask her again.'));
+    }
+  });
 }
 
 
@@ -48,9 +57,27 @@ function willYouMarryMe(/* isPositiveAnswer */) {
  *    })
  *
  */
-function processAllPromises(/* array */) {
-  throw new Error('Not implemented');
+function processAllPromises(array) {
+  return new Promise((resolve, reject) => {
+    if (array.length === 0) {
+      reject(new Error('No parameters were passed!'));
+    } else {
+      const result = [];
+      let resolvedCount = 0;
+      array.forEach((item, i) => {
+        item.then((itemValue) => {
+          result[i] = itemValue;
+          resolvedCount += 1;
+          if (resolvedCount === array.length) {
+            resolve(result);
+          }
+        });
+      });
+    }
+  });
 }
+
+/**
 
 /**
  * Return Promise object that should be resolved with value received from
@@ -65,14 +92,14 @@ function processAllPromises(/* array */) {
  *      Promise.resolve('first'),
  *      new Promise(resolve => setTimeout(() => resolve('second'), 500)),
  *    ];
- *    const p = processAllPromises(promises);
+ *    const p = getFastestPromise(promises);
  *    p.then((res) => {
  *      console.log(res) // => [first]
  *    })
  *
  */
-function getFastestPromise(/* array */) {
-  throw new Error('Not implemented');
+function getFastestPromise(array) {
+  return Promise.race(array).catch((error) => error.message);
 }
 
 /**
@@ -92,8 +119,26 @@ function getFastestPromise(/* array */) {
  *    });
  *
  */
-function chainPromises(/* array, action */) {
-  throw new Error('Not implemented');
+function chainPromises(array, action) {
+  return new Promise((resolve, reject) => {
+    if (array.length === 0) {
+      reject(new Error('No parameters were passed!'));
+    } else {
+      let res;
+      const result = [];
+      let resolvedCount = 0;
+      array.forEach((item, i) => {
+        item.then((itemValue) => {
+          result[i] = itemValue;
+          resolvedCount += 1;
+          if (resolvedCount === array.length) {
+            res = result.reduce(action, 0);
+            resolve(res);
+          }
+        });
+      });
+    }
+  });
 }
 
 module.exports = {
