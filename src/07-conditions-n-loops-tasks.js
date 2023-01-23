@@ -240,8 +240,18 @@ function findFirstSingleChar(str) {
  *   5, 3, true, true   => '[3, 5]'
  *
  */
-function getIntervalString(/* a, b, isStartIncluded, isEndIncluded */) {
-  throw new Error('Not implemented');
+function getIntervalString(a, b, isStartIncluded, isEndIncluded) {
+  let x = a;
+  let y = b;
+  if (y < x) {
+    const tmp = x;
+    x = y;
+    y = tmp;
+  }
+  const before = (isStartIncluded ? '[' : '(');
+  const after = (isEndIncluded ? ']' : ')');
+
+  return `${before}${x}, ${y}${after}`;
 }
 
 
@@ -422,20 +432,20 @@ function toNaryString(num, n) {
  *   ['/web/favicon.ico', '/web-scripts/dump', '/verbalizer/logs'] => '/'
  */
 function getCommonDirectoryPath(pathes) {
-  let commonPath = '';
-
-  for (let i = 0; i < pathes[0].length; i += 1) {
-    const char = pathes[0][i];
-
-    for (let j = 0; j < pathes.length; j += 1) {
-      if (pathes[j][i] !== char) {
-        return commonPath;
+  const slashed = pathes.map((p) => p.split('/'));
+  let i = 0;
+  const result = [];
+  while (i < slashed[0].length) {
+    const prev = slashed[0][i];
+    for (let j = 1; j < pathes.length; j += 1) {
+      if (slashed[j][i] !== prev) {
+        return result.length ? `${result.join('/')}/` : '';
       }
     }
-
-    commonPath += char;
+    result.push(prev);
+    i += 1;
   }
-  return commonPath;
+  return result.length ? `${result.join('/')}/` : '';
 }
 
 /**
@@ -457,17 +467,15 @@ function getCommonDirectoryPath(pathes) {
  *
  */
 function getMatrixProduct(m1, m2) {
-  const result = [];
+  let result = Array.from({ length: m1.length }, () => []);
 
-  for (let i = 0; i < 3; i += 1) {
-    result[i] = [];
+  result = result.map(() => Array.from({ length: m2[0].length }, () => 0));
 
-    for (let j = 0; j < 3; j += 1) {
+  for (let i = 0; i < m1.length; i += 1) {
+    for (let j = 0; j < m2[0].length; j += 1) {
       let sum = 0;
 
-      for (let k = 0; k < 3; k += 1) {
-        sum += m1[i][k] * m2[k][j];
-      }
+      for (let f = 0; f < m1[0].length; f += 1) { sum += m1[i][f] * m2[f][j]; }
 
       result[i][j] = sum;
     }
@@ -506,8 +514,33 @@ function getMatrixProduct(m1, m2) {
  *    [    ,   ,    ]]
  *
  */
-function evaluateTicTacToePosition(/* position */) {
-  throw new Error('Not implemented');
+function evaluateTicTacToePosition(position) {
+  for (let i = 0; i < 3; i += 1) {
+    let winX = true; let
+      winY = true;
+
+    for (let j = 0; j < 3; j += 1) {
+      if (position[j][i] !== position[0][i]) { winX = false; }
+
+      if (position[i][j] !== position[i][0]) { winY = false; }
+    }
+
+    if (winX
+        && position[0][i] !== undefined) { return position[0][i]; }
+
+    if (winY && position[i][0] !== undefined) { return position[i][0]; }
+  }
+
+  if (position[0][0] === position[1][1]
+    && position[0][0] === position[2][2]
+    && position[1][1] !== undefined) { return position[1][1]; }
+
+  if (position[0][2] === position[1][1]
+    && position[0][2] === position[2][0]
+    && position[1][1] !== undefined) { return position[1][1]; }
+
+
+  return undefined;
 }
 
 
