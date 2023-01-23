@@ -21,7 +21,7 @@
  *    'Sun, 17 May 1998 03:00:00 GMT+01' => Date()
  */
 function parseDataFromRfc2822(value) {
-  return new Date(value);
+  return Date.parse(value);
 }
 
 /**
@@ -36,7 +36,7 @@ function parseDataFromRfc2822(value) {
  *    '2016-01-19T08:07:37Z' => Date()
  */
 function parseDataFromIso8601(value) {
-  return Date(value).toString();
+  return new Date(value);
 }
 
 
@@ -76,17 +76,20 @@ function isLeapYear(date) {
  *    Date(2000,1,1,10,0,0),  Date(2000,1,1,15,20,10,453)   => "05:20:10.453"
  */
 function timeSpanToString(startDate, endDate) {
-  let diff = endDate.getTime() - startDate.getTime();
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  diff -= days * (1000 * 60 * 60 * 24);
-  const hours = Math.floor(diff / (1000 * 60 * 60));
-  diff -= hours * (1000 * 60 * 60);
-  const minutes = Math.floor(diff / (1000 * 60));
-  diff -= minutes * (1000 * 60);
-  const seconds = Math.floor(diff / 1000);
-  diff -= seconds * 1000;
+  let h = endDate.getHours() - startDate.getHours();
+  if (startDate.getDay() !== endDate.getDay()) h += 24;
+  h = h < 10 ? `0${h}` : h;
 
-  return `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds / ${days}:${hours}:${minutes}:${seconds}`;
+  let m = endDate.getMinutes() - startDate.getMinutes();
+  m = m < 10 ? `0${m}` : m;
+
+  let s = endDate.getSeconds() - startDate.getSeconds();
+  s = s < 10 ? `0${s}` : s;
+
+  let ms = endDate.getMilliseconds() - startDate.getMilliseconds();
+  ms = ms < 100 ? `00${ms}` : ms;
+
+  return `${h}:${m}:${s}.${ms}`;
 }
 
 
@@ -107,17 +110,18 @@ function timeSpanToString(startDate, endDate) {
  *    Date.UTC(2016,3,5,21, 0) => Math.PI/2
  */
 function angleBetweenClockHands(date) {
-  let hour = date.getHours();
-  const minute = date.getMinutes();
+  let hour = date.getUTCHours();
+  const minute = date.getUTCMinutes();
 
-  hour %= 12;
-  hour = hour || 12;
+  hour = (hour > 12 ? hour - 12 : hour);
 
-  const angle = (hour * 30 + minute * 0.5) - (minute * 6);
+  let angle = Math.abs(0.5 * (60 * hour - 11 * minute));
 
-  const angleInRad = angle * (Math.PI / 180);
+  while (angle > 180) {
+    angle -= 180;
+  }
 
-  return `${angle} in degrees, ${angleInRad} in radians`;
+  return angle * (Math.PI / 180);
 }
 
 
